@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../App.css";
+import AdminNavbar from "../../components/admin/AdminNavbar";
 
 function AdminDashboard() {
 
@@ -35,31 +36,7 @@ function AdminDashboard() {
   return (
     <div className="admin-wrapper">
 
-      <nav className="admin-navbar">
-
-        <div className="container">
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center"
-            }}
-          >
-
-            <span className="admin-brand">
-              <span className="admin-brand-dot"></span>
-              Distribuidora S.M
-            </span>
-
-            <span className="admin-badge-panel">
-              Panel Admin
-            </span>
-
-          </div>
-
-        </div>
-
-      </nav>
+      <AdminNavbar titulo="Panel Admin" />
 
       <div className="container py-5">
 

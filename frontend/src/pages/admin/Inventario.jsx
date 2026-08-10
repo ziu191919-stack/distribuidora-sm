@@ -3,19 +3,32 @@ import InventarioTable from "../../components/admin/InventarioTable";
 import ResumenInventario from "../../components/admin/ResumenInventario";
 import EditarStockModal from "../../components/admin/EditarStockModal";
 import "../../App.css";
+import AdminNavbar from "../../components/admin/AdminNavbar";
 
 function Inventario() {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [productos, setProductos] = useState([]);
+  const [productosInactivos, setProductosInactivos] = useState([]);
   const [busqueda, setBusqueda] = useState("");
+  const [mostrarDesactivados, setMostrarDesactivados] = useState(false);
 
-  useEffect(() => { obtenerProductos(); }, []);
+  useEffect(() => {
+    obtenerProductos();
+    obtenerProductosInactivos();
+  }, []);
 
   const obtenerProductos = async () => {
     try {
       const r = await fetch("http://localhost:3000/productos");
       setProductos(await r.json());
+    } catch (e) { console.error(e); }
+  };
+
+  const obtenerProductosInactivos = async () => {
+    try {
+      const r = await fetch("http://localhost:3000/productos/inactivos");
+      setProductosInactivos(await r.json());
     } catch (e) { console.error(e); }
   };
 
@@ -34,6 +47,7 @@ function Inventario() {
       const datos = await r.json();
       if (!r.ok) { alert(datos.mensaje || "Error al guardar"); return; }
       await obtenerProductos();
+      await obtenerProductosInactivos();
       setMostrarModal(false);
       setProductoSeleccionado(null);
       alert(formulario.id ? "Producto actualizado" : "Producto creado");
@@ -45,6 +59,16 @@ function Inventario() {
     try {
       await fetch(`http://localhost:3000/productos/desactivar/${id}`, { method: "PUT" });
       await obtenerProductos();
+      await obtenerProductosInactivos();
+    } catch (e) { console.error(e); }
+  };
+
+  const activarProducto = async (id) => {
+    if (!window.confirm("¿Desea activar este producto?")) return;
+    try {
+      await fetch(`http://localhost:3000/productos/activar/${id}`, { method: "PUT" });
+      await obtenerProductos();
+      await obtenerProductosInactivos();
     } catch (e) { console.error(e); }
   };
 
@@ -54,19 +78,7 @@ function Inventario() {
 
   return (
     <div className="admin-wrapper">
-      <nav className="admin-navbar">
-        <div className="container">
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <a href="/admin" className="admin-brand">
-              <span className="admin-brand-dot"></span>Distribuidora S.M
-            </a>
-            <span className="admin-badge-panel">Inventario</span>
-          </div>
-          <a href="/admin" className="btn-dashboard">
-            <i className="bi bi-speedometer2"></i> Dashboard
-          </a>
-        </div>
-      </nav>
+      <AdminNavbar titulo="Inventario" />
 
       <div className="admin-page-header">
         <div className="container d-flex align-items-center justify-content-between flex-wrap gap-3">
@@ -92,6 +104,28 @@ function Inventario() {
           onEditar={(p) => { setProductoSeleccionado(p); setMostrarModal(true); }}
           onEliminar={desactivarProducto}
         />
+
+        <div className="d-flex align-items-center justify-content-between flex-wrap gap-3 mt-5 mb-3">
+          <h2 className="admin-page-title" style={{ fontSize: "1.5rem" }}>
+            Productos Desactivados
+          </h2>
+          <button
+            className="btn-agregar"
+            onClick={() => setMostrarDesactivados((v) => !v)}
+          >
+            <i className={`bi bi-chevron-${mostrarDesactivados ? "up" : "down"}`}></i>{" "}
+            {mostrarDesactivados ? "Ocultar" : "Mostrar"} ({productosInactivos.length})
+          </button>
+        </div>
+
+        {mostrarDesactivados && (
+          <InventarioTable
+            productos={productosInactivos}
+            onEditar={(p) => { setProductoSeleccionado(p); setMostrarModal(true); }}
+            onActivar={activarProducto}
+            modoDesactivados
+          />
+        )}
       </div>
 
       {mostrarModal && (

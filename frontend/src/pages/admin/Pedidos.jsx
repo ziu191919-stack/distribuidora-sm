@@ -22,11 +22,17 @@ function Pedidos() {
 
   const actualizarEstado = async (id, estado) => {
     try {
-      await fetch(`http://localhost:3000/pedidos/estado/${id}`, {
+      const r = await fetch(`http://localhost:3000/pedidos/estado/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ estado }),
       });
+      const datos = await r.json();
+      if (!r.ok) {
+        alert(datos.mensaje || "No se pudo actualizar el estado");
+        obtenerPedidos();
+        return;
+      }
       obtenerPedidos();
     } catch (e) { console.error(e); }
   };
@@ -43,6 +49,9 @@ function Pedidos() {
     en_entrega: "En entrega", anulado: "Anulado"
   }[e] || e);
 
+  // Una vez que el pedido avanzó (ya no está pendiente), no puede regresar a pendiente
+  const puedeVolverAPendiente = (estado) => estado === "pendiente";
+
   const pedidosFiltrados = pedidos.filter((p) =>
     p.nombre?.toLowerCase().includes(busqueda.toLowerCase())
   );
@@ -53,7 +62,7 @@ function Pedidos() {
         <div className="container">
           <div style={{ display: "flex", alignItems: "center" }}>
             <span className="admin-brand">
-              <span className="admin-brand-dot"></span>Distribuidora S.M
+              <i className="bi bi-droplet-fill admin-brand-icon"></i>Distribuidora S.M
             </span>
             <span className="admin-badge-panel">Pedidos</span>
           </div>
@@ -133,7 +142,9 @@ function Pedidos() {
                       className="admin-select-estado"
                       style={{ background: est.bg, color: est.color }}
                     >
-                      <option value="pendiente">Pendiente</option>
+                      <option value="pendiente" disabled={!puedeVolverAPendiente(pedido.estado)}>
+                        Pendiente
+                      </option>
                       <option value="enviado">Enviado</option>
                       <option value="en_entrega">En entrega</option>
                       <option value="anulado">Anulado</option>

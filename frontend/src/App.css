@@ -11,6 +11,47 @@
   --verde-palido:  #d8f3dc;
   --fondo-suave:   #f0f4f1;
   --blanco:        #ffffff;
+
+  /* Acento "agua" — nuevo, conecta directo con productos de limpieza/desinfección.
+     Se usa con moderación: precios, focos, detalles de marca. */
+  --agua:          #3fb6c9;
+  --agua-suave:    #d6f1f5;
+  --agua-oscura:   #2c8798;
+
+  /* Escala de espaciados, para consistencia en toda la app */
+  --espacio-xs: 0.5rem;
+  --espacio-sm: 1rem;
+  --espacio-md: 1.5rem;
+  --espacio-lg: 2.5rem;
+  --espacio-xl: 4rem;
+
+  /* Escala de radios */
+  --radio-sm: 8px;
+  --radio-md: 14px;
+  --radio-lg: 20px;
+  --radio-xl: 28px;
+}
+
+/* ============================================================
+   ACCESIBILIDAD — FOCO VISIBLE GLOBAL
+   ============================================================ */
+:focus-visible {
+  outline: 3px solid var(--agua);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+a:focus-visible,
+button:focus-visible {
+  outline-offset: 3px;
+}
+
+/* Respeta la preferencia del usuario de reducir movimiento */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ============================================================
@@ -30,9 +71,16 @@
   inset: 0;
   background:
     radial-gradient(ellipse 70% 80% at 30% 50%, rgba(64,145,108,0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 60% at 75% 20%, rgba(116,198,157,0.10) 0%, transparent 55%);
+    radial-gradient(ellipse 50% 60% at 75% 20%, rgba(63,182,201,0.14) 0%, transparent 55%);
   pointer-events: none;
   z-index: 0;
+  animation: respirarAgua 10s ease-in-out infinite;
+}
+/* Firma visual: un "respiro" lento en el gradiente, como ondas de agua —
+   sutil, no se siente como decoración genérica, refuerza el tema de limpieza */
+@keyframes respirarAgua {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.85; transform: scale(1.03); }
 }
 .hero-imagen {
   position: relative;
@@ -76,11 +124,12 @@
   font-size: clamp(2.4rem, 4vw, 4rem);
   font-weight: 700;
   line-height: 1.1;
+  letter-spacing: -0.02em;
   margin-bottom: 1.5rem;
   color: #ffffff;
 }
 .hero-titulo span {
-  color: #74c69d;
+  color: var(--agua);
   display: block;
 }
 .hero-subtitulo {
@@ -108,9 +157,9 @@
   font-family: 'DM Sans', sans-serif;
 }
 .btn-hero:hover {
-  background: #74c69d;
+  background: var(--agua);
   transform: translateY(-3px);
-  box-shadow: 0 14px 40px rgba(64,145,108,0.55);
+  box-shadow: 0 14px 40px rgba(63,182,201,0.5);
 }
 
 /* ============================================================
@@ -118,7 +167,7 @@
    ============================================================ */
 .beneficio-card {
   background: #ffffff;
-  border-radius: 20px;
+  border-radius: var(--radio-lg);
   padding: 2.5rem 2rem;
   text-align: center;
   box-shadow: 0 8px 32px rgba(26,58,42,0.09);
@@ -133,7 +182,7 @@
   position: absolute;
   bottom: 0; left: 0; right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #40916c, #74c69d);
+  background: linear-gradient(90deg, #40916c, var(--agua));
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.35s ease;
@@ -158,7 +207,7 @@
   transition: all 0.3s ease;
 }
 .beneficio-card:hover .beneficio-icono {
-  background: #40916c;
+  background: linear-gradient(135deg, #40916c, var(--agua-oscura));
   color: #ffffff;
   transform: scale(1.1) rotate(-5deg);
 }
@@ -168,6 +217,8 @@
    ============================================================ */
 .destacados-section {
   background-color: #f8faf8;
+  background-image: radial-gradient(circle, rgba(63,182,201,0.06) 1px, transparent 1px);
+  background-size: 22px 22px;
   border-radius: 25px;
   margin-top: 20px;
   padding: 3rem 1rem 4rem;
@@ -203,7 +254,7 @@
   position: absolute;
   width: 220px;
   height: 220px;
-  background: radial-gradient(circle, rgba(40,167,69,0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(63,182,201,0.14) 0%, transparent 70%);
   border-radius: 50%;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
@@ -243,6 +294,7 @@
   opacity: 1;
   width: 24px;
   border-radius: 100px;
+  background-color: var(--agua-oscura);
 }
 
 /* ── Carrusel: flechas ── */
@@ -262,8 +314,8 @@
 .carousel-control-next { right: -22px; }
 .carousel-control-prev:hover,
 .carousel-control-next:hover {
-  background: #28a745;
-  box-shadow: 0 8px 28px rgba(40,167,69,0.4);
+  background: var(--agua);
+  box-shadow: 0 8px 28px rgba(63,182,201,0.4);
 }
 .carousel-control-prev-icon,
 .carousel-control-next-icon {
@@ -344,7 +396,7 @@
   letter-spacing: 0.01em;
   text-decoration: none;
 }
-.admin-brand-dot {
+.admin-brand-dot-OLD {
   width: 8px;
   height: 8px;
   background: #74c69d;
@@ -397,6 +449,7 @@
   color: #1a3a2a;
   margin: 0 0 4px;
   line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 .admin-page-sub {
   font-size: 0.88rem;
@@ -452,8 +505,8 @@
   outline: none;
 }
 .search-input:focus {
-  border-color: #40916c;
-  box-shadow: 0 0 0 3px rgba(64,145,108,0.12);
+  border-color: var(--agua);
+  box-shadow: 0 0 0 3px rgba(63,182,201,0.15);
 }
 .search-input::placeholder { color: #adc4b5; }
 
@@ -502,6 +555,7 @@
   font-family: 'DM Sans', sans-serif;
   font-size: 1.8rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
   color: #1a3a2a;
   margin: 12px 0 4px;
 }
@@ -528,7 +582,7 @@
 }
 .btn-volver:hover {
   background: #f0f4f1;
-  border-color: #40916c;
+  border-color: var(--agua);
   color: #1a3a2a;
 }
 .catalogo-contenido {
@@ -551,6 +605,7 @@
 .catalogo-card:hover {
   transform: translateY(-6px);
   box-shadow: 0 16px 48px rgba(26,58,42,0.15);
+  border-color: rgba(63,182,201,0.25);
 }
 .catalogo-card-img {
   background: radial-gradient(circle at 50% 40%, #e8f5e9 0%, #ffffff 70%);
@@ -606,7 +661,7 @@
   font-family: 'DM Sans', sans-serif;
   font-size: 1.05rem;
   font-weight: 700;
-  color: #2d6a4f;
+  color: var(--agua-oscura);
 }
 .catalogo-card-btn {
   display: inline-flex;
@@ -624,7 +679,7 @@
   font-family: 'DM Sans', sans-serif;
 }
 .catalogo-card-btn:hover {
-  background: #40916c;
+  background: var(--agua-oscura);
   transform: translateX(2px);
 }
 
@@ -777,7 +832,7 @@
 .app-modulo:hover {
   transform: translateY(-6px);
   box-shadow: 0 16px 48px rgba(26,58,42,0.16);
-  border-color: rgba(64,145,108,0.3);
+  border-color: rgba(63,182,201,0.35);
 }
 .app-modulo-icono {
   width: 64px;
@@ -792,7 +847,7 @@
   transition: all 0.3s ease;
 }
 .app-modulo:hover .app-modulo-icono {
-  background: #40916c;
+  background: linear-gradient(135deg, #40916c, var(--agua-oscura));
   color: #ffffff;
   transform: scale(1.08);
 }
@@ -839,7 +894,7 @@
    ============================================================ */
 .auth-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a3a2a 0%, #2d6a4f 60%, #40916c 100%);
+  background: linear-gradient(135deg, #1a3a2a 0%, #2d6a4f 55%, #3fb6c9 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -869,6 +924,7 @@
   font-family: 'DM Sans', sans-serif;
   font-weight: 700;
   font-size: 1.75rem;
+  letter-spacing: -0.01em;
   color: #1a3a2a;
   text-align: center;
   margin-bottom: 0.25rem;
@@ -878,6 +934,69 @@
   color: #6c757d;
   margin-bottom: 1.75rem;
   font-size: 0.92rem;
+}
+
+/* ============================================================
+   AUTH — BIENVENIDA CÁLIDA (paso 2 del login, verificación)
+   Solo mejora visual: mismo texto, misma lógica, mismo nombre dinámico.
+   ============================================================ */
+.auth-logo--bienvenida {
+  background: linear-gradient(135deg, var(--verde-vivo, #40916c), var(--agua, #3fb6c9));
+  color: #ffffff;
+  box-shadow: 0 10px 32px rgba(63,182,201,0.35), 0 0 0 6px rgba(63,182,201,0.08);
+  animation: bienvenidaEntrada 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.auth-logo--bienvenida i {
+  animation: bienvenidaBalanceo 2.6s ease-in-out infinite;
+  display: inline-block;
+}
+@keyframes bienvenidaEntrada {
+  0%   { opacity: 0; transform: scale(0.6) rotate(-8deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); }
+}
+@keyframes bienvenidaBalanceo {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(-6deg); }
+}
+
+.auth-titulo--bienvenida {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+.auth-titulo--bienvenida::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 3px;
+  margin: 8px auto 0;
+  border-radius: 100px;
+  background: linear-gradient(90deg, var(--verde-vivo, #40916c), var(--agua, #3fb6c9));
+  animation: crecerLinea 0.5s ease-out 0.15s both;
+}
+@keyframes crecerLinea {
+  from { width: 0; opacity: 0; }
+  to   { width: 40px; opacity: 1; }
+}
+
+.auth-sub--bienvenida {
+  font-size: 1rem;
+  color: #4a6358;
+  animation: apareceSubir 0.5s ease-out 0.1s both;
+}
+@keyframes apareceSubir {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.auth-nombre-pill {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--verde-palido, #d8f3dc), var(--agua-suave, #d6f1f5));
+  color: var(--verde-oscuro, #1a3a2a);
+  font-weight: 700;
+  padding: 2px 12px;
+  border-radius: 100px;
+  border: 1px solid rgba(63,182,201,0.25);
 }
 
 /* ============================================================
@@ -893,6 +1012,17 @@
   padding: 2px 8px;
   display: inline-flex;
   align-items: center;
+}
+
+/* ============================================================
+   PEDIDO — ANIMACIÓN DE CONFIRMACIÓN (refuerza "sentimiento")
+   ============================================================ */
+.recibo-modal {
+  animation: aparecerSuave 0.35s ease-out;
+}
+@keyframes aparecerSuave {
+  from { opacity: 0; transform: translate(-50%, -48%) scale(0.94); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
 
 /* ============================================================
@@ -912,4 +1042,336 @@
 .estado-en_entrega {
   background: #d1e7dd;
   color: #0f5132;
+}
+
+/* ============================================================
+   CATÁLOGO — FILTRO DE CATEGORÍAS
+   ============================================================ */
+.catalogo-categorias {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.categoria-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1.5px solid #dce8e0;
+  color: #2d6a4f;
+  padding: 7px 14px;
+  border-radius: 100px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'DM Sans', sans-serif;
+  white-space: nowrap;
+}
+.categoria-pill i {
+  font-size: 0.95rem;
+}
+.categoria-pill:hover {
+  border-color: var(--agua);
+  background: #f0f4f1;
+  color: #1a3a2a;
+}
+.categoria-pill-activa {
+  background: #2d6a4f;
+  border-color: #2d6a4f;
+  color: #ffffff;
+}
+.categoria-pill-activa:hover {
+  background: #1a3a2a;
+  border-color: #1a3a2a;
+  color: #ffffff;
+}
+
+/* ── Responsive: grid de 2 columnas en móvil, sin scroll horizontal ── */
+@media (max-width: 576px) {
+  .catalogo-categorias {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .categoria-pill {
+    width: 100%;
+    justify-content: center;
+    white-space: normal;
+    text-align: center;
+    padding: 8px 10px;
+  }
+}
+/* ============================================================
+   LOGOS EN NAVBAR
+   ============================================================ */
+.admin-brand-icon {
+  font-size: 1.1rem;
+  color: #74c69d;
+}
+.navbar-logo-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+/* ============================================================
+   MÓDULO DE SEGURIDAD — ESTILOS
+   ============================================================ */
+
+/* Política de privacidad */
+.politica-scroll {
+  background: #f0f4f1;
+  border-radius: 10px;
+  padding: 16px;
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 0.88rem;
+  color: #495057;
+  line-height: 1.6;
+  border: 1px solid #d8f3dc;
+}
+.politica-scroll p { margin-bottom: 10px; }
+.politica-scroll p:last-child { margin-bottom: 0; }
+
+/* Sección títulos en registro */
+.registro-seccion-titulo {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #2d6a4f;
+  border-bottom: 1px solid #d8f3dc;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+}
+
+/* Checks de contraseña */
+.pwd-checks {
+  background: #f8fdf9;
+  border: 1px solid #d8f3dc;
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+/* Bloque de pregunta de seguridad */
+.pregunta-seguridad-bloque {
+  background: #f8fdf9;
+  border: 1px solid #d8f3dc;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+/* Botones de 2FA */
+.btn-2fa-opcion {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  background: #f8fdf9;
+  border: 1.5px solid #d8f3dc;
+  border-radius: 12px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  text-align: left;
+}
+.btn-2fa-opcion:hover {
+  border-color: var(--agua);
+  background: #edf7f1;
+}
+.btn-2fa-opcion:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.btn-2fa-icono {
+  width: 44px;
+  height: 44px;
+  background: #d8f3dc;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  color: #2d6a4f;
+  flex-shrink: 0;
+}
+.btn-2fa-titulo {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #1a3a2a;
+}
+.btn-2fa-sub {
+  font-size: 0.78rem;
+  color: #6c757d;
+  margin-top: 2px;
+}
+
+/* Pregunta box en recuperación */
+.pregunta-box {
+  background: #f0f4f1;
+  border-left: 3px solid var(--agua);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  color: #1a3a2a;
+  font-weight: 500;
+}
+
+/* Pista de usuario */
+.pista-usuario-box {
+  background: #1a3a2a;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.pista-label {
+  font-size: 0.75rem;
+  color: #74c69d;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.pista-valor {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.15em;
+}
+
+/* OTP en pantalla */
+.otp-display-box {
+  background: #1a3a2a;
+  border-radius: 14px;
+  padding: 24px 20px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.otp-codigo {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--agua);
+  letter-spacing: 0.35em;
+  font-family: 'DM Sans', monospace;
+}
+.otp-timer {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.55);
+  margin-top: 8px;
+}
+.otp-expirado {
+  font-size: 1rem;
+  color: #f8d7da;
+  font-weight: 600;
+}
+
+/* ============================================================
+   GOOGLE AUTHENTICATOR — MI CUENTA
+   ============================================================ */
+.totp-seccion {
+  border: 1.5px solid #d8f3dc;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.totp-seccion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  cursor: pointer;
+  background: #f8fdf9;
+  transition: background 0.2s;
+}
+.totp-seccion-header:hover { background: #edf7f1; }
+.totp-icono {
+  width: 40px;
+  height: 40px;
+  background: #d8f3dc;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #2d6a4f;
+  flex-shrink: 0;
+}
+.totp-titulo {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #1a3a2a;
+}
+.totp-sub {
+  font-size: 0.78rem;
+  color: #6c757d;
+}
+.totp-cuerpo {
+  padding: 16px;
+  border-top: 1px solid #d8f3dc;
+  background: #ffffff;
+}
+.totp-instruccion {
+  font-size: 0.88rem;
+  color: #495057;
+  margin-bottom: 12px;
+}
+.totp-pasos-lista {
+  font-size: 0.85rem;
+  color: #495057;
+  padding-left: 20px;
+  margin-bottom: 16px;
+  line-height: 2;
+}
+.totp-qr-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.totp-qr-img {
+  width: 200px;
+  height: 200px;
+  border: 4px solid #d8f3dc;
+  border-radius: 12px;
+}
+
+.btn-2fa-desactivado {
+  opacity: 0.6;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Bloqueo temporal — cronómetro */
+.bloqueo-timer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+.bloqueo-timer-circulo {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(220,53,69,0.15);
+  border: 2px solid #dc3545;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.bloqueo-timer-num {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #dc3545;
+  font-family: monospace;
+}
+.bloqueo-timer-texto {
+  font-size: 0.85rem;
+  color: #842029;
 }

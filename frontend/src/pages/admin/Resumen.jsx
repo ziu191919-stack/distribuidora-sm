@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../App.css";
+import AdminNavbar from "../../components/admin/AdminNavbar";
 
 function Resumen() {
 
@@ -53,42 +54,7 @@ function Resumen() {
   return (
     <div className="admin-wrapper">
 
-      <nav className="admin-navbar">
-
-        <div className="container">
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center"
-            }}
-          >
-            <a
-              href="/admin"
-              className="admin-brand"
-            >
-              <span className="admin-brand-dot"></span>
-              Distribuidora S.M
-            </a>
-
-            <span className="admin-badge-panel">
-              Panel Admin
-            </span>
-          </div>
-
-          <button
-            className="btn-dashboard"
-            onClick={() =>
-              navigate("/admin")
-            }
-          >
-            <i className="bi bi-speedometer2"></i>
-            Dashboard
-          </button>
-
-        </div>
-
-      </nav>
+      <AdminNavbar titulo="Panel Admin" />
 
       <div className="admin-page-header">
 

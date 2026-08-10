@@ -2,27 +2,48 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import "../App.css";
+import { registrar, ACCIONES } from "../services/auditoria";
+
+const iconosCategoria = {
+  "Cocina": "bi-cup-hot",
+  "Cuidado Automotriz": "bi-car-front",
+  "Desengrasantes": "bi-droplet-half",
+  "Desinfectantes": "bi-shield-check",
+  "Detergentes y Lavandería": "bi-basket3",
+  "Limpieza General": "bi-stars",
+};
 
 function Catalogo() {
   const [productos, setProductos] = useState([]);
+  const [categorias, setCategorias] = useState([]);
   const [busqueda, setBusqueda] = useState("");
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("todas");
   const navigate = useNavigate();
 
   useEffect(() => {
+    registrar(ACCIONES.VER_CATALOGO);
+
     fetch("http://localhost:3000/productos")
       .then((r) => r.json())
       .then(setProductos)
       .catch(console.error);
+
+    fetch("http://localhost:3000/productos/categorias")
+      .then((r) => r.json())
+      .then(setCategorias)
+      .catch(console.error);
   }, []);
 
-  const productosFiltrados = productos.filter((p) =>
-    p.nombre.toLowerCase().includes(busqueda.toLowerCase())
-  );
+  const productosFiltrados = productos.filter((p) => {
+    const coincideNombre = p.nombre.toLowerCase().includes(busqueda.toLowerCase());
+    const coincideCategoria =
+      categoriaSeleccionada === "todas" || p.categoria_id === categoriaSeleccionada;
+    return coincideNombre && coincideCategoria;
+  });
 
   return (
     <>
       <Navbar />
-
       <div className="catalogo-header">
         <div className="container">
           <button className="btn-volver" onClick={() => navigate("/")}>
@@ -36,7 +57,7 @@ function Catalogo() {
       </div>
 
       <div className="container catalogo-contenido">
-        <div className="row justify-content-center mb-5">
+        <div className="row justify-content-center mb-4">
           <div className="col-12 col-md-6">
             <div className="search-wrapper">
               <i className="bi bi-search"></i>
@@ -48,6 +69,32 @@ function Catalogo() {
               />
             </div>
           </div>
+        </div>
+
+        <div className="catalogo-categorias mb-5">
+          <button
+            className={`categoria-pill ${categoriaSeleccionada === "todas" ? "categoria-pill-activa" : ""}`}
+            onClick={() => {
+              setCategoriaSeleccionada("todas");
+              registrar(ACCIONES.FILTRAR_CATEGORIA, "Todas");
+            }}
+          >
+            <i className="bi bi-grid"></i>
+            Todas
+          </button>
+          {categorias.map((cat) => (
+            <button
+              key={cat.id}
+              className={`categoria-pill ${categoriaSeleccionada === cat.id ? "categoria-pill-activa" : ""}`}
+              onClick={() => {
+                setCategoriaSeleccionada(cat.id);
+                registrar(ACCIONES.FILTRAR_CATEGORIA, cat.nombre);
+              }}
+            >
+              <i className={`bi ${iconosCategoria[cat.nombre] || "bi-tag"}`}></i>
+              {cat.nombre}
+            </button>
+          ))}
         </div>
 
         {productosFiltrados.length === 0 ? (

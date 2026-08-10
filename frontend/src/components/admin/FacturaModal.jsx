@@ -7,6 +7,18 @@ function FacturaModal({
 
   if (!factura) return null;
 
+  const partesDireccion = [
+    factura.factura.direccion,
+    factura.factura.distrito,
+    factura.factura.canton,
+    factura.factura.provincia,
+    factura.factura.pais
+  ].filter(Boolean);
+
+  const direccionCompleta = partesDireccion.length > 0
+    ? partesDireccion.join(", ")
+    : "Sin dirección registrada";
+
   return (
     <>
       <div
@@ -60,7 +72,7 @@ function FacturaModal({
             <div className="mb-4">
 
               <strong>Dirección:</strong><br />
-              {factura.factura.direccion}
+              {direccionCompleta}
 
             </div>
 

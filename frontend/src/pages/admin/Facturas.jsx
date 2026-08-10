@@ -50,19 +50,7 @@ function Facturas() {
 
   return (
     <div className="admin-wrapper">
-      <nav className="admin-navbar">
-        <div className="container">
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <span className="admin-brand">
-              <span className="admin-brand-dot"></span>Distribuidora S.M
-            </span>
-            <span className="admin-badge-panel">Facturas</span>
-          </div>
-          <button className="btn-dashboard" onClick={() => navigate("/admin")}>
-            Dashboard
-          </button>
-        </div>
-      </nav>
+      <AdminNavbar titulo="Facturas" />
 
       <div className="admin-page-header">
         <div className="container">

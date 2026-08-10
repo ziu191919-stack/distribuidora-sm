@@ -9,7 +9,9 @@ import Login from "./pages/Login";
 import Registro from "./pages/Registro";
 import MiCuenta from "./pages/MiCuenta";
 import OlvidePassword from "./pages/OlvidePassword";
+import RecuperarUsuario from "./pages/RecuperarUsuario";
 import ResetPassword from "./pages/ResetPassword";
+import AdminLogin from "./pages/admin/AdminLogin";
 
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Pedidos from "./pages/admin/Pedidos";
@@ -17,22 +19,62 @@ import Inventario from "./pages/admin/Inventario";
 import Clientes from "./pages/admin/Clientes";
 import Resumen from "./pages/admin/Resumen";
 import Facturas from "./pages/admin/Facturas";
+import DemoTSE from "./pages/DemoTSE";
 
-// Rutas protegidas para clientes
-function RutaCliente({ children }) {
+// Verifica token cliente: que exista y no esté expirado
+function tokenClienteValido() {
   const token = localStorage.getItem("token_cliente");
-  return token ? children : <Navigate to="/login" replace />;
+  if (!token) return false;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    if (payload.exp && Date.now() / 1000 > payload.exp) {
+      localStorage.removeItem("token_cliente");
+      localStorage.removeItem("cliente");
+      return false;
+    }
+    return true;
+  } catch {
+    localStorage.removeItem("token_cliente");
+    localStorage.removeItem("cliente");
+    return false;
+  }
+}
+
+// Verifica token admin
+function tokenAdminValido() {
+  const token = localStorage.getItem("token_admin");
+  if (!token) return false;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    if (payload.exp && Date.now() / 1000 > payload.exp) {
+      localStorage.removeItem("token_admin");
+      return false;
+    }
+    return true;
+  } catch {
+    localStorage.removeItem("token_admin");
+    return false;
+  }
+}
+
+function RutaCliente({ children }) {
+  return tokenClienteValido() ? children : <Navigate to="/login" replace />;
+}
+
+function RutaAdmin({ children }) {
+  return tokenAdminValido() ? children : <Navigate to="/admin/login" replace />;
 }
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Públicas */}
+        {/* Públicas cliente */}
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/olvide-password" element={<OlvidePassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/recuperar-usuario" element={<RecuperarUsuario />} />
 
         {/* Protegidas cliente */}
         <Route path="/" element={<RutaCliente><Home /></RutaCliente>} />
@@ -42,13 +84,16 @@ function App() {
         <Route path="/producto/:id" element={<RutaCliente><DetalleProducto /></RutaCliente>} />
         <Route path="/mi-cuenta" element={<RutaCliente><MiCuenta /></RutaCliente>} />
 
-        {/* Admin (ocultas, sin protección JWT frontend por ahora) */}
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/inventario" element={<Inventario />} />
-        <Route path="/admin/pedidos" element={<Pedidos />} />
-        <Route path="/admin/clientes" element={<Clientes />} />
-        <Route path="/admin/resumen" element={<Resumen />} />
-        <Route path="/admin/facturas" element={<Facturas />} />
+        {/* Admin */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin" element={<RutaAdmin><AdminDashboard /></RutaAdmin>} />
+        <Route path="/inventario" element={<RutaAdmin><Inventario /></RutaAdmin>} />
+        <Route path="/admin/pedidos" element={<RutaAdmin><Pedidos /></RutaAdmin>} />
+        <Route path="/admin/clientes" element={<RutaAdmin><Clientes /></RutaAdmin>} />
+        <Route path="/admin/resumen" element={<RutaAdmin><Resumen /></RutaAdmin>} />
+        <Route path="/admin/facturas" element={<RutaAdmin><Facturas /></RutaAdmin>} />
+        <Route path="/demo-tse" element={<DemoTSE />} />
+        
       </Routes>
     </BrowserRouter>
   );

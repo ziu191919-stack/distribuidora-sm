@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 
+
 const app = express();
 
 app.use(cors());
@@ -24,6 +25,13 @@ const clientesRoutes = require("./routes/clientes.routes");
 const resumenRoutes = require("./routes/resumen.routes");
 const facturasRoutes = require("./routes/facturas.routes");
 const authClientesRoutes = require("./routes/auth.clientes.routes");
+const authAdminRoutes = require("./routes/auth.admin.routes");
+const ubicacionesRoutes = require("./routes/ubicaciones.routes");
+const sociosComercialesRoutes = require("./routes/sociosComerciales.routes");
+const tseRoutes = require("./routes/tse.routes");
+const paypalRoutes = require("./routes/paypal.routes");
+const bancoRoutes = require("./routes/banco.routes");
+const bccrRoutes = require("./routes/bccr.routes");
 
 
 
@@ -33,6 +41,13 @@ app.use("/clientes", clientesRoutes);
 app.use("/resumen", resumenRoutes);
 app.use("/facturas", facturasRoutes);
 app.use("/auth/clientes", authClientesRoutes);
+app.use("/auth/admin", authAdminRoutes);
+app.use("/ubicaciones", ubicacionesRoutes);
+app.use("/socios", sociosComercialesRoutes);
+app.use("/tse", tseRoutes);
+app.use("/paypal", paypalRoutes);
+app.use("/banco", bancoRoutes);
+app.use("/bccr", bccrRoutes);
 
 app.get("/", (req, res) => {
   res.send("API Distribuidora S.M funcionando");

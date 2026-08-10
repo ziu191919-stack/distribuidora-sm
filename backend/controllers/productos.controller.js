@@ -1,6 +1,17 @@
 const conexion = require("../config/db");
 const path = require("path");
 const fs = require("fs");
+const { registrarAuditoriaAdmin, ACCIONES } = require("../services/auditoria.admin.service");
+
+const getAdminId = (req) => {
+  try {
+    const token = (req.headers.authorization || "").replace("Bearer ", "");
+    if (!token) return null;
+    const jwt = require("jsonwebtoken");
+    const payload = jwt.verify(token, process.env.JWT_SECRET_ADMIN || "distribuidora_sm_admin_secret_2024");
+    return payload.id || null;
+  } catch { return null; }
+};
 
 const sqlBase = `
   SELECT p.id, p.categoria_id, p.nombre, p.descripcion, p.precio,
@@ -13,6 +24,19 @@ const sqlBase = `
   LEFT JOIN producto_imagenes pi ON pi.producto_id = p.id AND pi.es_principal = 1 AND pi.activo = 1
   LEFT JOIN precios_mayorista pm ON pm.producto_id = p.id AND pm.activo = 1
   WHERE p.activo = 1
+`;
+
+const sqlBaseInactivos = `
+  SELECT p.id, p.categoria_id, p.nombre, p.descripcion, p.precio,
+         p.stock, p.stock_minimo, p.destacado,
+         c.nombre AS categoria,
+         pi.url AS imagen,
+         pm.precio_mayoreo AS precio_mayorista
+  FROM productos p
+  INNER JOIN categorias c ON c.id = p.categoria_id
+  LEFT JOIN producto_imagenes pi ON pi.producto_id = p.id AND pi.es_principal = 1 AND pi.activo = 1
+  LEFT JOIN precios_mayorista pm ON pm.producto_id = p.id AND pm.activo = 1
+  WHERE p.activo = 0
 `;
 
 const obtenerProductos = (req, res) => {
@@ -60,34 +84,55 @@ const crearProducto = (req, res) => {
 
   function insertar() {
     const sql = "INSERT INTO productos (categoria_id, nombre, descripcion, precio, stock, stock_minimo, destacado) VALUES (?,?,?,?,?,?,?)";
-    conexion.query(sql, [categoria_id, nombre, descripcion, precio, stock, stock_minimo, destacado ? 1 : 0], (err, resultado) => {
-      if (err) return res.status(500).json(err);
-      const productoId = resultado.insertId;
 
-      const finalizarConImagen = (urlImagen) => {
-        if (urlImagen) {
-          conexion.query(
-            "INSERT INTO producto_imagenes (producto_id, url, es_principal, orden, activo) VALUES (?,?,1,1,1)",
-            [productoId, urlImagen],
-            () => {}
-          );
-        }
-        if (precio_mayorista && Number(precio_mayorista) > 0) {
-          conexion.query(
-            "INSERT INTO precios_mayorista (producto_id, precio_mayoreo, cantidad_minima, activo) VALUES (?,?,50,1)",
-            [productoId, precio_mayorista],
-            () => {}
-          );
-        }
-        res.status(201).json({ mensaje: "Producto creado correctamente", id: productoId });
-      };
+    conexion.query(
+      sql,
+      [
+        categoria_id,
+        nombre,
+        descripcion,
+        precio,
+        stock,
+        stock_minimo,
+        Number(destacado)
+      ],
+      (err, resultado) => {
+        if (err) return res.status(500).json(err);
 
-      if (imagenFile) {
-        finalizarConImagen(`uploads/productos/${imagenFile.filename}`);
-      } else {
-        finalizarConImagen(null);
+        const productoId = resultado.insertId;
+
+        const finalizarConImagen = (urlImagen) => {
+          if (urlImagen) {
+            conexion.query(
+              "INSERT INTO producto_imagenes (producto_id, url, es_principal, orden, activo) VALUES (?,?,1,1,1)",
+              [productoId, urlImagen],
+              () => {}
+            );
+          }
+
+          if (precio_mayorista && Number(precio_mayorista) > 0) {
+            conexion.query(
+              "INSERT INTO precios_mayorista (producto_id, precio_mayoreo, cantidad_minima, activo) VALUES (?,?,50,1)",
+              [productoId, precio_mayorista],
+              () => {}
+            );
+          }
+
+          const adminIdC = getAdminId(req);
+          if (adminIdC) registrarAuditoriaAdmin(adminIdC, ACCIONES.AGREGAR_PRODUCTO, req, `Producto ID: ${productoId}`);
+          res.status(201).json({
+            mensaje: "Producto creado correctamente",
+            id: productoId
+          });
+        };
+
+        if (imagenFile) {
+          finalizarConImagen(`uploads/productos/${imagenFile.filename}`);
+        } else {
+          finalizarConImagen(null);
+        }
       }
-    });
+    );
   }
 };
 
@@ -97,54 +142,120 @@ const actualizarProducto = (req, res) => {
   const imagenFile = req.file;
 
   if (Number(destacado) === 1) {
-    conexion.query("SELECT COUNT(*) AS total FROM productos WHERE destacado = 1 AND activo = 1 AND id <> ?", [id], (err, r) => {
-      if (err) return res.status(500).json(err);
-      if (r[0].total >= 3) return res.status(400).json({ mensaje: "Solo se permiten 3 productos destacados" });
-      actualizar();
-    });
+    conexion.query(
+      "SELECT COUNT(*) AS total FROM productos WHERE destacado = 1 AND activo = 1 AND id <> ?",
+      [id],
+      (err, r) => {
+        if (err) return res.status(500).json(err);
+        if (r[0].total >= 3) {
+          return res.status(400).json({
+            mensaje: "Solo se permiten 3 productos destacados"
+          });
+        }
+        actualizar();
+      }
+    );
   } else {
     actualizar();
   }
 
   function actualizar() {
     const sql = "UPDATE productos SET categoria_id=?, nombre=?, descripcion=?, precio=?, stock=?, stock_minimo=?, destacado=? WHERE id=?";
-    conexion.query(sql, [categoria_id, nombre, descripcion, precio, stock, stock_minimo, destacado ? 1 : 0, id], (err) => {
-      if (err) return res.status(500).json(err);
 
-      if (imagenFile) {
-        const urlImagen = `uploads/productos/${imagenFile.filename}`;
-        conexion.query("UPDATE producto_imagenes SET activo = 0 WHERE producto_id = ?", [id], () => {
+    conexion.query(
+      sql,
+      [
+        categoria_id,
+        nombre,
+        descripcion,
+        precio,
+        stock,
+        stock_minimo,
+        Number(destacado),
+        id
+      ],
+      (err) => {
+        if (err) return res.status(500).json(err);
+
+        if (imagenFile) {
+          const urlImagen = `uploads/productos/${imagenFile.filename}`;
+
           conexion.query(
-            "INSERT INTO producto_imagenes (producto_id, url, es_principal, orden, activo) VALUES (?,?,1,1,1)",
-            [id, urlImagen],
-            () => {}
+            "UPDATE producto_imagenes SET activo = 0 WHERE producto_id = ?",
+            [id],
+            () => {
+              conexion.query(
+                "INSERT INTO producto_imagenes (producto_id, url, es_principal, orden, activo) VALUES (?,?,1,1,1)",
+                [id, urlImagen],
+                () => {}
+              );
+            }
           );
+        }
+
+        if (precio_mayorista !== undefined) {
+          if (Number(precio_mayorista) > 0) {
+            conexion.query(
+              "INSERT INTO precios_mayorista (producto_id, precio_mayoreo, cantidad_minima, activo) VALUES (?,?,50,1) ON DUPLICATE KEY UPDATE precio_mayoreo=?, activo=1",
+              [id, precio_mayorista, precio_mayorista],
+              () => {}
+            );
+          } else {
+            conexion.query(
+              "UPDATE precios_mayorista SET activo = 0 WHERE producto_id = ?",
+              [id],
+              () => {}
+            );
+          }
+        }
+
+        const adminIdU = getAdminId(req);
+        if (adminIdU) registrarAuditoriaAdmin(adminIdU, ACCIONES.EDITAR_PRODUCTO, req, `Producto ID: ${req.params.id}`);
+        res.json({
+          mensaje: "Producto actualizado correctamente"
         });
       }
-
-      // Actualizar precio mayorista
-      if (precio_mayorista !== undefined) {
-        if (Number(precio_mayorista) > 0) {
-          conexion.query(
-            "INSERT INTO precios_mayorista (producto_id, precio_mayoreo, cantidad_minima, activo) VALUES (?,?,50,1) ON DUPLICATE KEY UPDATE precio_mayoreo=?, activo=1",
-            [id, precio_mayorista, precio_mayorista],
-            () => {}
-          );
-        } else {
-          conexion.query("UPDATE precios_mayorista SET activo = 0 WHERE producto_id = ?", [id], () => {});
-        }
-      }
-
-      res.json({ mensaje: "Producto actualizado correctamente" });
-    });
+    );
   }
 };
 
 const desactivarProducto = (req, res) => {
-  conexion.query("UPDATE productos SET activo = 0 WHERE id = ?", [req.params.id], (err) => {
+  conexion.query(
+    "UPDATE productos SET activo = 0 WHERE id = ?",
+    [req.params.id],
+    (err) => {
+      if (err) return res.status(500).json(err);
+
+      const adminIdD = getAdminId(req);
+      if (adminIdD) registrarAuditoriaAdmin(adminIdD, ACCIONES.ELIMINAR_PRODUCTO, req, `Producto ID: ${req.params.id}`);
+      res.json({
+        mensaje: "Producto desactivado correctamente"
+      });
+    }
+  );
+};
+
+const obtenerProductosInactivos = (req, res) => {
+  conexion.query(sqlBaseInactivos + " ORDER BY p.id DESC", (err, rows) => {
     if (err) return res.status(500).json(err);
-    res.json({ mensaje: "Producto desactivado correctamente" });
+    res.json(rows);
   });
+};
+
+const activarProducto = (req, res) => {
+  conexion.query(
+    "UPDATE productos SET activo = 1 WHERE id = ?",
+    [req.params.id],
+    (err) => {
+      if (err) return res.status(500).json(err);
+
+      const adminIdA = getAdminId(req);
+      if (adminIdA) registrarAuditoriaAdmin(adminIdA, ACCIONES.AGREGAR_PRODUCTO, req, `Producto reactivado ID: ${req.params.id}`);
+      res.json({
+        mensaje: "Producto activado correctamente"
+      });
+    }
+  );
 };
 
 const obtenerStockBajo = (req, res) => {
@@ -157,4 +268,15 @@ const obtenerStockBajo = (req, res) => {
   );
 };
 
-module.exports = { obtenerProductos, obtenerProductoPorId, obtenerProductosDestacados, obtenerCategorias, crearProducto, actualizarProducto, desactivarProducto, obtenerStockBajo };
+module.exports = {
+  obtenerProductos,
+  obtenerProductoPorId,
+  obtenerProductosDestacados,
+  obtenerCategorias,
+  crearProducto,
+  actualizarProducto,
+  desactivarProducto,
+  obtenerProductosInactivos,
+  activarProducto,
+  obtenerStockBajo
+};

@@ -49,7 +49,11 @@ const obtenerFacturaPorId = (req, res) => {
       p.id,
       c.nombre,
       c.telefono,
-      c.direccion,
+      p.direccion,
+      d.nombre AS distrito,
+      ca.nombre AS canton,
+      pr.nombre AS provincia,
+      pa.nombre AS pais,
       p.total,
       p.estado,
 
@@ -62,6 +66,18 @@ const obtenerFacturaPorId = (req, res) => {
 
     INNER JOIN clientes c
       ON c.id = p.cliente_id
+
+    LEFT JOIN distrito d
+      ON d.id_distrito = p.id_distrito
+
+    LEFT JOIN canton ca
+      ON ca.id_canton = d.id_canton
+
+    LEFT JOIN provincia pr
+      ON pr.id_provincia = ca.id_provincia
+
+    LEFT JOIN pais pa
+      ON pa.id_pais = pr.id_pais
 
     WHERE p.id = ?
   `;
@@ -122,5 +138,5 @@ const obtenerFacturaPorId = (req, res) => {
 
 module.exports = {
   obtenerFacturas,
-  obtenerFacturaPorId
+  obtenerFacturaPorId  
 };

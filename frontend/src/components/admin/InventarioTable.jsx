@@ -1,12 +1,13 @@
 import EstadoStockBadge from "./EstadoStockBadge";
-
-function InventarioTable({ productos, onEditar, onEliminar }) {
+function InventarioTable({ productos, onEditar, onEliminar, onActivar, modoDesactivados }) {
   return (
     <div className="admin-lista">
       {productos.length === 0 ? (
         <div className="admin-card text-center py-5">
           <i className="bi bi-box-seam" style={{ fontSize: "4rem", color: "#adb5bd" }}></i>
-          <h4 className="mt-3">No hay productos</h4>
+          <h4 className="mt-3">
+            {modoDesactivados ? "No hay productos desactivados" : "No hay productos"}
+          </h4>
         </div>
       ) : (
         productos.map((producto) => (
@@ -18,7 +19,6 @@ function InventarioTable({ productos, onEditar, onEliminar }) {
               </div>
               <span className="badge bg-secondary">{producto.categoria}</span>
             </div>
-
             <div className="admin-fila-datos">
               <div className="admin-fila-dato">
                 <i className="bi bi-boxes"></i>
@@ -33,25 +33,40 @@ function InventarioTable({ productos, onEditar, onEliminar }) {
                 <span>₡{Number(producto.precio).toLocaleString()}</span>
               </div>
               <div className="admin-fila-dato">
-                <EstadoStockBadge stock={producto.stock} minimo={producto.stock_minimo} />
+                {modoDesactivados ? (
+                  <span className="badge bg-danger">Desactivado</span>
+                ) : (
+                  <EstadoStockBadge stock={producto.stock} minimo={producto.stock_minimo} />
+                )}
               </div>
             </div>
-
             <div className="admin-fila-acciones">
-              <button
-                className="btn btn-success btn-sm"
-                onClick={() => onEditar(producto)}
-              >
-                <i className="bi bi-pencil-square me-1"></i>
-                Editar
-              </button>
-              <button
-                className="btn btn-outline-danger btn-sm"
-                onClick={() => onEliminar(producto.id)}
-              >
-                <i className="bi bi-slash-circle me-1"></i>
-                Desactivar
-              </button>
+              {modoDesactivados ? (
+                <button
+                  className="btn btn-success btn-sm"
+                  onClick={() => onActivar(producto.id)}
+                >
+                  <i className="bi bi-check-circle me-1"></i>
+                  Activar
+                </button>
+              ) : (
+                <>
+                  <button
+                    className="btn btn-success btn-sm"
+                    onClick={() => onEditar(producto)}
+                  >
+                    <i className="bi bi-pencil-square me-1"></i>
+                    Editar
+                  </button>
+                  <button
+                    className="btn btn-outline-danger btn-sm"
+                    onClick={() => onEliminar(producto.id)}
+                  >
+                    <i className="bi bi-slash-circle me-1"></i>
+                    Desactivar
+                  </button>
+                </>
+              )}
             </div>
           </div>
         ))
@@ -59,5 +74,4 @@ function InventarioTable({ productos, onEditar, onEliminar }) {
     </div>
   );
 }
-
 export default InventarioTable;

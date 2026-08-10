@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { registrar, ACCIONES } from "../services/auditoria";
 
 function DetalleProducto() {
   const { id } = useParams();
@@ -10,6 +11,8 @@ function DetalleProducto() {
   const [agregado, setAgregado] = useState(false);
 
   useEffect(() => {
+    registrar(ACCIONES.VER_DETALLE_PRODUCTO, `Producto ID: ${id}`);
+    // eslint-disable-next-line
     fetch(`http://localhost:3000/productos/${id}`)
       .then((r) => r.json())
       .then(setProducto)
@@ -27,6 +30,7 @@ function DetalleProducto() {
         id: producto.id,
         nombre: producto.nombre,
         precio: producto.precio,
+        precio_mayorista: producto.precio_mayorista || null,
         imagen: producto.imagen,
         cantidad,
       });
@@ -36,6 +40,7 @@ function DetalleProducto() {
 
     // Disparar evento para que Pedido.jsx detecte el cambio
     window.dispatchEvent(new Event("carritoActualizado"));
+    registrar(ACCIONES.AGREGAR_AL_CARRITO, `Producto: ${producto?.nombre}`);
 
     setAgregado(true);
     setTimeout(() => setAgregado(false), 2000);

@@ -7,10 +7,20 @@ import { Carousel } from "bootstrap";
 
 function Home() {
   const [productosDestacados, setProductosDestacados] = useState([]);
+  const [nombreCliente, setNombreCliente] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     obtenerDestacados();
+    // Sentimiento: saludo personalizado si el cliente ya inició sesión
+    try {
+      const datosCliente = JSON.parse(localStorage.getItem("cliente"));
+      if (datosCliente?.nombre) {
+        setNombreCliente(datosCliente.nombre.split(" ")[0]); // solo el primer nombre
+      }
+    } catch {
+      setNombreCliente(null);
+    }
   }, []);
 
   useEffect(() => {
@@ -43,6 +53,14 @@ function Home() {
         </div>
         <div className="hero-texto">
           <span className="hero-badge">Distribuidora S.M</span>
+          {nombreCliente && (
+            <p
+              className="mb-1 fw-semibold"
+              style={{ color: "#40916c", fontSize: "1.05rem" }}
+            >
+              👋 ¡Bienvenido de nuevo, {nombreCliente}!
+            </p>
+          )}
           <h1 className="hero-titulo">
             Limpieza que
             <span> inspira confianza</span>

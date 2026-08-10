@@ -1,12 +1,21 @@
 import { useState } from "react";
+import UbicacionCascada from "../UbicacionCascada";
 
 function ClienteModal({ cliente, cerrarModal, guardarCliente }) {
   const [nombre, setNombre] = useState(cliente?.nombre || "");
   const [cedula, setCedula] = useState(cliente?.cedula || "");
+  const [usuario, setUsuario] = useState(cliente?.usuario || "");
   const [email, setEmail] = useState(cliente?.email || "");
   const [telefono, setTelefono] = useState(cliente?.telefono || "");
   const [direccion, setDireccion] = useState(cliente?.direccion || "");
   const [esMayorista, setEsMayorista] = useState(cliente?.es_mayorista || 0);
+
+  const [ubicacion, setUbicacion] = useState({
+    idPais: cliente?.id_pais || "",
+    idProvincia: cliente?.id_provincia || "",
+    idCanton: cliente?.id_canton || "",
+    idDistrito: cliente?.id_distrito || "",
+  });
 
   const guardar = () => {
     if (!nombre.trim() || !telefono.trim()) {
@@ -21,14 +30,23 @@ function ClienteModal({ cliente, cerrarModal, guardarCliente }) {
       alert("La cédula debe tener entre 9 y 12 números");
       return;
     }
+    if (usuario && !/^[a-zA-Z0-9._]{3,30}$/.test(usuario)) {
+      alert("El usuario debe tener entre 3 y 30 caracteres, solo letras, números, puntos o guiones bajos");
+      return;
+    }
     guardarCliente({
       id: cliente?.id,
       nombre,
       cedula: cedula || null,
+      usuario: usuario || null,
       email: email || null,
       telefono,
       direccion,
       es_mayorista: esMayorista,
+      id_pais: ubicacion.idPais || null,
+      id_provincia: ubicacion.idProvincia || null,
+      id_canton: ubicacion.idCanton || null,
+      id_distrito: ubicacion.idDistrito || null,
     });
   };
 
@@ -70,6 +88,17 @@ function ClienteModal({ cliente, cerrarModal, guardarCliente }) {
               </div>
 
               <div className="col-md-6">
+                <label className="form-label fw-semibold">Usuario</label>
+                <input type="text" className="form-control"
+                  placeholder="Ej: juan.perez"
+                  value={usuario}
+                  onChange={(e) => setUsuario(e.target.value.replace(/\s/g, "").toLowerCase())}
+                  maxLength={30}
+                />
+                <small className="text-muted">3–30 caracteres, sin espacios</small>
+              </div>
+
+              <div className="col-md-6">
                 <label className="form-label fw-semibold">Teléfono</label>
                 <input type="text" className="form-control"
                   value={telefono}
@@ -78,7 +107,7 @@ function ClienteModal({ cliente, cerrarModal, guardarCliente }) {
                 />
               </div>
 
-              <div className="col-12">
+              <div className="col-md-6">
                 <label className="form-label fw-semibold">Email</label>
                 <input type="email" className="form-control"
                   placeholder="correo@ejemplo.com"
@@ -86,8 +115,22 @@ function ClienteModal({ cliente, cerrarModal, guardarCliente }) {
               </div>
 
               <div className="col-12">
-                <label className="form-label fw-semibold">Dirección</label>
+                <label className="form-label fw-semibold">Ubicación</label>
+                <UbicacionCascada
+                  valorInicial={{
+                    idPais: cliente?.id_pais,
+                    idProvincia: cliente?.id_provincia,
+                    idCanton: cliente?.id_canton,
+                    idDistrito: cliente?.id_distrito,
+                  }}
+                  onSeleccionCompleta={setUbicacion}
+                />
+              </div>
+
+              <div className="col-12">
+                <label className="form-label fw-semibold">Dirección exacta</label>
                 <input type="text" className="form-control"
+                  placeholder="Ej: 200m norte del parque central"
                   value={direccion} onChange={(e) => setDireccion(e.target.value)} />
               </div>
 
