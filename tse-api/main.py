@@ -4,7 +4,12 @@ Simula el servicio del Tribunal Supremo de Elecciones de Costa Rica:
 consulta una cedula y, si existe, devuelve nombre y apellidos.
 Si no existe, el frontend debe permitir el ingreso manual de esos datos.
 
-Ejecutar:
+En produccion (Render), la base de datos (tse.db, ~379MB con el padron
+real) NO viaja dentro del repositorio de GitHub por su tamano. En su
+lugar, se descarga automaticamente al arrancar desde un GitHub Release,
+si todavia no existe en el disco del servidor.
+
+Ejecutar local:
     pip install -r requirements.txt
     uvicorn main:app --reload --port 8009
 
@@ -12,6 +17,7 @@ Documentacion Swagger: http://localhost:8009/docs
 """
 
 import sqlite3
+import urllib.request
 from contextlib import closing
 from pathlib import Path
 
@@ -21,6 +27,27 @@ from pydantic import BaseModel
 
 DB_PATH = Path(__file__).parent / "tse.db"
 API_KEY = "tse-2026-secret"
+
+# URL del archivo tse.db subido como GitHub Release (el padron real ya importado)
+DB_DOWNLOAD_URL = "https://github.com/ziu191919-stack/distribuidora-sm/releases/download/v1.0-tse-padron/tse.db"
+
+
+def asegurar_base_datos():
+    """
+    Si tse.db no existe en el disco (primer arranque en Render, o el
+    servidor se reinicio y perdio el archivo), lo descarga automaticamente
+    desde el GitHub Release antes de que la API empiece a responder.
+    """
+    if DB_PATH.exists():
+        print(f"tse.db ya existe ({DB_PATH.stat().st_size / 1_000_000:.1f} MB), no se descarga de nuevo.")
+        return
+
+    print("tse.db no encontrado. Descargando el padron real desde GitHub Releases...")
+    urllib.request.urlretrieve(DB_DOWNLOAD_URL, DB_PATH)
+    print(f"Descarga completa: {DB_PATH.stat().st_size / 1_000_000:.1f} MB")
+
+
+asegurar_base_datos()
 
 app = FastAPI(
     title="TSE API (simulado)",
