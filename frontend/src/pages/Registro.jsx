@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../App.css";
 
-const API = "http://localhost:3000/auth/clientes";
-const API_TSE = "http://localhost:3000/tse";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API = `${API_BASE}/auth/clientes`;
+const API_TSE = `${API_BASE}/tse`;
 
 const REGEX_PASSWORD = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
 const REGEX_USUARIO  = /^[a-zA-Z0-9._]{3,30}$/;

@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import "../App.css";
 
-const API_TSE = "http://localhost:3000/tse";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_TSE = `${API_BASE}/tse`;
 
 function DemoTSE() {
   const navigate = useNavigate();

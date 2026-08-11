@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import "../App.css";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 const REGEX_PASSWORD = /^(?=.*[0-9])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
 
 function ResetPassword() {
@@ -26,7 +28,7 @@ function ResetPassword() {
     if (password !== confirmar) { setError("Las contraseñas no coinciden"); return; }
     setCargando(true);
     try {
-      const r = await fetch("http://localhost:3000/auth/clientes/reset-password", {
+      const r = await fetch(`${API_BASE}/auth/clientes/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, password }),

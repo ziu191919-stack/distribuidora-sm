@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 function EditarStockModal({ cerrarModal, producto, guardarProducto }) {
   const esEdicion = producto !== null;
   const [categorias, setCategorias] = useState([]);
@@ -14,11 +16,11 @@ function EditarStockModal({ cerrarModal, producto, guardarProducto }) {
   const [destacado, setDestacado] = useState(producto?.destacado || 0);
   const [imagenFile, setImagenFile] = useState(null);
   const [preview, setPreview] = useState(
-    producto?.imagen ? `http://localhost:3000/${producto.imagen}` : null
+    producto?.imagen ? `${API_BASE}/${producto.imagen}` : null
   );
 
   useEffect(() => {
-    fetch("http://localhost:3000/productos/categorias")
+    fetch(`${API_BASE}/productos/categorias`)
       .then((r) => r.json())
       .then(setCategorias)
       .catch(console.error);

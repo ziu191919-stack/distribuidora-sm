@@ -4,6 +4,8 @@ import Navbar from "../components/Navbar";
 import "../App.css";
 import { registrar, ACCIONES } from "../services/auditoria";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 const iconosCategoria = {
   "Cocina": "bi-cup-hot",
   "Cuidado Automotriz": "bi-car-front",
@@ -23,12 +25,12 @@ function Catalogo() {
   useEffect(() => {
     registrar(ACCIONES.VER_CATALOGO);
 
-    fetch("http://localhost:3000/productos")
+    fetch(`${API_BASE}/productos`)
       .then((r) => r.json())
       .then(setProductos)
       .catch(console.error);
 
-    fetch("http://localhost:3000/productos/categorias")
+    fetch(`${API_BASE}/productos/categorias`)
       .then((r) => r.json())
       .then(setCategorias)
       .catch(console.error);
@@ -106,7 +108,7 @@ function Catalogo() {
                 <div className="catalogo-card">
                   <div className="catalogo-card-img">
                     <img
-                      src={`http://localhost:3000/${producto.imagen}`}
+                      src={`${API_BASE}/${producto.imagen}`}
                       alt={producto.nombre}
                     />
                   </div>

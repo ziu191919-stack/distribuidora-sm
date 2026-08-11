@@ -3,7 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import RecaptchaWidget from "../components/RecaptchaWidget";
 import "../App.css";
 
-const API = "http://localhost:3000/auth/clientes";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API = `${API_BASE}/auth/clientes`;
 
 function Login() {
   const navigate = useNavigate();

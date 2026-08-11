@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { registrar, ACCIONES } from "../services/auditoria";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 function DetalleProducto() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -13,7 +15,7 @@ function DetalleProducto() {
   useEffect(() => {
     registrar(ACCIONES.VER_DETALLE_PRODUCTO, `Producto ID: ${id}`);
     // eslint-disable-next-line
-    fetch(`http://localhost:3000/productos/${id}`)
+    fetch(`${API_BASE}/productos/${id}`)
       .then((r) => r.json())
       .then(setProducto)
       .catch(console.error);
@@ -80,7 +82,7 @@ function DetalleProducto() {
             <div className="col-md-6">
               <div style={{ background: "linear-gradient(180deg, #f8faf8 0%, #ffffff 100%)" }}>
                 <img
-                  src={`http://localhost:3000/${producto.imagen}`}
+                  src={`${API_BASE}/${producto.imagen}`}
                   alt={producto.nombre}
                   className="img-fluid w-100"
                   style={{ height: "500px", objectFit: "contain", padding: "20px" }}

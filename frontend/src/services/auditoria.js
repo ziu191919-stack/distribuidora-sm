@@ -1,4 +1,5 @@
-const API = "http://localhost:3000/auth/clientes";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API = `${API_BASE}/auth/clientes`;
 
 export const ACCIONES = {
   REALIZAR_PEDIDO:       19,

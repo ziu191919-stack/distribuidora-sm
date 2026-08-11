@@ -5,6 +5,8 @@ import bannerPrincipal from "../assets/banner-principal.png.png";
 import "../App.css";
 import { Carousel } from "bootstrap";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 function Home() {
   const [productosDestacados, setProductosDestacados] = useState([]);
   const [nombreCliente, setNombreCliente] = useState(null);
@@ -34,7 +36,7 @@ function Home() {
 
   const obtenerDestacados = async () => {
     try {
-      const respuesta = await fetch("http://localhost:3000/productos/destacados");
+      const respuesta = await fetch(`${API_BASE}/productos/destacados`);
       const datos = await respuesta.json();
       setProductosDestacados(datos);
     } catch (error) {
@@ -170,7 +172,7 @@ function Home() {
                     <div className="producto-slide-card">
                       <div className="producto-imagen-wrap">
                         <img
-                          src={`http://localhost:3000/${producto.imagen}`}
+                          src={`${API_BASE}/${producto.imagen}`}
                           alt={producto.nombre}
                         />
                       </div>

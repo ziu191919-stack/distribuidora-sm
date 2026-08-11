@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
-const API = "http://localhost:3000";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API = `${API_BASE}/lo-que-tenía-antes`;
 
 function AdminNavbar({ titulo }) {
   const navigate = useNavigate();

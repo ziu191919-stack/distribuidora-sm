@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import "../App.css";
 
-const API = "http://localhost:3000/auth/clientes";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API = `${API_BASE}/auth/clientes`;
 
 function RecuperarUsuario() {
   // Paso: 1=correo, 2=pregunta, 3=pista

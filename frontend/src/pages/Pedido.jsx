@@ -18,6 +18,9 @@ const PAYPAL_CLIENT_ID = "ASKtz-IpCSezxAgKBy5n_J_dwCX-voArOZAsSUL8I94JA_mxhZMMng
 // Tasa de respaldo por si el BCCR no responde (fin de semana, feriado, o falla de red)
 const TASA_CAMBIO_USD_RESPALDO = 520;
 
+// En producción (Vercel) usa la URL real del backend; en desarrollo local, localhost
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 function Pedido() {
   const navigate = useNavigate();
   const [cliente, setCliente] = useState(null);
@@ -42,7 +45,7 @@ function Pedido() {
   const [tipoCambioBCCR, setTipoCambioBCCR] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:3000/bccr/tipo-cambio-compra")
+    fetch(`${API_BASE}/bccr/tipo-cambio-compra`)
       .then((r) => r.json())
       .then((d) => {
         if (d.valor) setTipoCambioBCCR(d);
@@ -142,7 +145,7 @@ function Pedido() {
     setEnviando(true);
     const token = localStorage.getItem("token_cliente");
     try {
-      const r = await fetch("http://localhost:3000/pedidos", {
+      const r = await fetch(`${API_BASE}/pedidos`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -211,7 +214,7 @@ function Pedido() {
       }
       setProcesandoPago(true);
       try {
-        const r = await fetch("http://localhost:3000/banco/validar-tarjeta", {
+        const r = await fetch(`${API_BASE}/banco/validar-tarjeta`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -242,7 +245,7 @@ function Pedido() {
       }
       setProcesandoPago(true);
       try {
-        const r = await fetch("http://localhost:3000/banco/validar-sinpe", {
+        const r = await fetch(`${API_BASE}/banco/validar-sinpe`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ telefono: telefonoSinpe, monto: total }),
@@ -284,7 +287,7 @@ function Pedido() {
           }
           setErrorPago("");
           const montoUSD = (total / tasaCambioActual).toFixed(2);
-          const r = await fetch("http://localhost:3000/paypal/crear-orden", {
+          const r = await fetch(`${API_BASE}/paypal/crear-orden`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ monto: montoUSD }),
@@ -297,7 +300,7 @@ function Pedido() {
           setProcesandoPago(true);
           try {
             const r = await fetch(
-              `http://localhost:3000/paypal/capturar-orden/${data.orderID}`,
+              `${API_BASE}/paypal/capturar-orden/${data.orderID}`,
               { method: "POST" }
             );
             const d = await r.json();
