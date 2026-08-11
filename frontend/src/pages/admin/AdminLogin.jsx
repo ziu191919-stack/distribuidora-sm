@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../App.css";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,7 +21,7 @@ function AdminLogin() {
     }
     setCargando(true);
     try {
-      const r = await fetch("http://localhost:3000/auth/admin/login", {
+      const r = await fetch(`${API_BASE}/auth/admin/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
