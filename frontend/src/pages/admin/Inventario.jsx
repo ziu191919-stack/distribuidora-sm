@@ -5,6 +5,8 @@ import EditarStockModal from "../../components/admin/EditarStockModal";
 import "../../App.css";
 import AdminNavbar from "../../components/admin/AdminNavbar";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 function Inventario() {
   const [mostrarModal, setMostrarModal] = useState(false);
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
@@ -20,14 +22,14 @@ function Inventario() {
 
   const obtenerProductos = async () => {
     try {
-      const r = await fetch("http://localhost:3000/productos");
+      const r = await fetch(`${API_BASE}/productos`);
       setProductos(await r.json());
     } catch (e) { console.error(e); }
   };
 
   const obtenerProductosInactivos = async () => {
     try {
-      const r = await fetch("http://localhost:3000/productos/inactivos");
+      const r = await fetch(`${API_BASE}/productos/inactivos`);
       setProductosInactivos(await r.json());
     } catch (e) { console.error(e); }
   };
@@ -40,9 +42,9 @@ function Inventario() {
 
       let r;
       if (formulario.id) {
-        r = await fetch(`http://localhost:3000/productos/${formulario.id}`, { method: "PUT", body: formData });
+        r = await fetch(`${API_BASE}/productos/${formulario.id}`, { method: "PUT", body: formData });
       } else {
-        r = await fetch("http://localhost:3000/productos", { method: "POST", body: formData });
+        r = await fetch(`${API_BASE}/productos`, { method: "POST", body: formData });
       }
       const datos = await r.json();
       if (!r.ok) { alert(datos.mensaje || "Error al guardar"); return; }
@@ -57,7 +59,7 @@ function Inventario() {
   const desactivarProducto = async (id) => {
     if (!window.confirm("¿Desea desactivar este producto?")) return;
     try {
-      await fetch(`http://localhost:3000/productos/desactivar/${id}`, { method: "PUT" });
+      await fetch(`${API_BASE}/productos/desactivar/${id}`, { method: "PUT" });
       await obtenerProductos();
       await obtenerProductosInactivos();
     } catch (e) { console.error(e); }
@@ -66,7 +68,7 @@ function Inventario() {
   const activarProducto = async (id) => {
     if (!window.confirm("¿Desea activar este producto?")) return;
     try {
-      await fetch(`http://localhost:3000/productos/activar/${id}`, { method: "PUT" });
+      await fetch(`${API_BASE}/productos/activar/${id}`, { method: "PUT" });
       await obtenerProductos();
       await obtenerProductosInactivos();
     } catch (e) { console.error(e); }

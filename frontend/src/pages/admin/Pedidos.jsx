@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../../App.css";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 function Pedidos() {
   const [pedidos, setPedidos] = useState([]);
   const [busqueda, setBusqueda] = useState("");
@@ -15,14 +17,14 @@ function Pedidos() {
 
   const obtenerPedidos = async () => {
     try {
-      const r = await fetch("http://localhost:3000/pedidos");
+      const r = await fetch(`${API_BASE}/pedidos`);
       setPedidos(await r.json());
     } catch (e) { console.error(e); }
   };
 
   const actualizarEstado = async (id, estado) => {
     try {
-      const r = await fetch(`http://localhost:3000/pedidos/estado/${id}`, {
+      const r = await fetch(`${API_BASE}/pedidos/estado/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ estado }),

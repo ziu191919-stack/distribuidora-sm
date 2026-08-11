@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import FacturaModal from "../../components/admin/FacturaModal";
+import AdminNavbar from "../../components/admin/AdminNavbar";
+
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function Facturas() {
   const navigate = useNavigate();
@@ -15,14 +18,14 @@ function Facturas() {
 
   const obtenerFacturas = async () => {
     try {
-      const r = await fetch("http://localhost:3000/facturas");
+      const r = await fetch(`${API_BASE}/facturas`);
       setFacturas(await r.json());
     } catch (e) { console.error(e); }
   };
 
   const verFactura = async (id) => {
     try {
-      const r = await fetch(`http://localhost:3000/facturas/${id}`);
+      const r = await fetch(`${API_BASE}/facturas/${id}`);
       setFacturaSeleccionada(await r.json());
       setMostrarModal(true);
     } catch (e) { console.error(e); }

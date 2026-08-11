@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "../../App.css";
 import AdminNavbar from "../../components/admin/AdminNavbar";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
 function AdminDashboard() {
 
   const navigate = useNavigate();
@@ -18,7 +20,7 @@ function AdminDashboard() {
     try {
 
       const respuesta = await fetch(
-        "http://localhost:3000/productos/stock-bajo"
+        `${API_BASE}/productos/stock-bajo`
       );
 
       const datos = await respuesta.json();
