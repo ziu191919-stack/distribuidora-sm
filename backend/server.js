@@ -53,6 +53,20 @@ app.get("/", (req, res) => {
   res.send("API Distribuidora S.M funcionando");
 });
 
+// Manejador de errores global — sin esto, un error dentro de un middleware
+// (como multer/Cloudinary al subir una imagen) queda sin capturar y Express
+// devuelve una página HTML por defecto en vez de JSON, rompiendo el frontend.
+// Con esto, siempre se responde JSON, y el mensaje real del error queda visible
+// en los logs de Render para poder diagnosticarlo.
+app.use((err, req, res, next) => {
+  console.error("Error no capturado:", err.message);
+  console.error(err.stack);
+  res.status(500).json({
+    mensaje: "Error interno del servidor",
+    detalle: err.message,
+  });
+});
+
 
 const PORT = process.env.PORT || 3000;
 
