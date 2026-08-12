@@ -5,6 +5,8 @@ import { registrar, ACCIONES } from "../services/auditoria";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+const urlImagen = (img) => (img?.startsWith("http") ? img : `${API_BASE}/${img}`);
+
 function DetalleProducto() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -82,7 +84,7 @@ function DetalleProducto() {
             <div className="col-md-6">
               <div style={{ background: "linear-gradient(180deg, #f8faf8 0%, #ffffff 100%)" }}>
                 <img
-                  src={`${API_BASE}/${producto.imagen}`}
+                  src={urlImagen(producto.imagen)}
                   alt={producto.nombre}
                   className="img-fluid w-100"
                   style={{ height: "500px", objectFit: "contain", padding: "20px" }}

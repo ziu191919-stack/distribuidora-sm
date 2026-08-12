@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+const urlImagen = (img) => (img?.startsWith("http") ? img : `${API_BASE}/${img}`);
+
 function EditarStockModal({ cerrarModal, producto, guardarProducto }) {
   const esEdicion = producto !== null;
   const [categorias, setCategorias] = useState([]);
@@ -16,7 +18,7 @@ function EditarStockModal({ cerrarModal, producto, guardarProducto }) {
   const [destacado, setDestacado] = useState(producto?.destacado || 0);
   const [imagenFile, setImagenFile] = useState(null);
   const [preview, setPreview] = useState(
-    producto?.imagen ? `${API_BASE}/${producto.imagen}` : null
+    producto?.imagen ? urlImagen(producto.imagen) : null
   );
 
   useEffect(() => {

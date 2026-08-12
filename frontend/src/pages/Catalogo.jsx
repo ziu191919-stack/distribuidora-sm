@@ -6,6 +6,8 @@ import { registrar, ACCIONES } from "../services/auditoria";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
+const urlImagen = (img) => (img?.startsWith("http") ? img : `${API_BASE}/${img}`);
+
 const iconosCategoria = {
   "Cocina": "bi-cup-hot",
   "Cuidado Automotriz": "bi-car-front",
@@ -108,7 +110,7 @@ function Catalogo() {
                 <div className="catalogo-card">
                   <div className="catalogo-card-img">
                     <img
-                      src={`${API_BASE}/${producto.imagen}`}
+                      src={urlImagen(producto.imagen)}
                       alt={producto.nombre}
                     />
                   </div>

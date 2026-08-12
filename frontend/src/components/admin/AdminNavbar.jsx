@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
-const API = `${API_BASE}/lo-que-tenía-antes`;
 
 function AdminNavbar({ titulo }) {
   const navigate = useNavigate();
@@ -12,7 +11,7 @@ function AdminNavbar({ titulo }) {
       const adminData = localStorage.getItem("admin");
       const admin = adminData ? JSON.parse(adminData) : null;
       const token = localStorage.getItem("token_admin");
-      await fetch(`${API}/auth/admin/logout`, {
+      await fetch(`${API_BASE}/auth/admin/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
