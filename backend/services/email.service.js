@@ -1,11 +1,19 @@
 const nodemailer = require("nodemailer");
 
+// Configuración explícita (host/puerto) en vez del atajo "service: gmail" —
+// más confiable en servidores en la nube, con timeouts definidos para no
+// dejar la petición "colgada" indefinidamente si Gmail tarda en responder.
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // true para puerto 465 (SSL directo, más estable que STARTTLS en 587)
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_PASS,
   },
+  connectionTimeout: 15000, // 15s máximo para conectar
+  greetingTimeout: 15000,
+  socketTimeout: 20000,
 });
 
 const enviarEmail = async ({ to, subject, html }) => {
@@ -19,16 +27,18 @@ const enviarEmail = async ({ to, subject, html }) => {
     return { ok: true, simulado: true };
   }
   try {
+    const inicio = Date.now();
     await transporter.sendMail({
       from: `"Distribuidora S.M" <${process.env.GMAIL_USER}>`,
       to,
       subject,
       html,
     });
+    console.log(`Email enviado a ${to} en ${Date.now() - inicio}ms`);
     return { ok: true };
   } catch (error) {
-    console.error("Error enviando email:", error);
-    return { ok: false, error };
+    console.error("Error enviando email:", error.message);
+    return { ok: false, error: error.message };
   }
 };
 
