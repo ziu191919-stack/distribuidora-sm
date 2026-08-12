@@ -126,8 +126,10 @@ const crearProducto = (req, res) => {
           });
         };
 
+        // Antes: `uploads/productos/${imagenFile.filename}` (ruta local, se perdía en Render)
+        // Ahora: imagenFile.path ya es la URL completa y permanente de Cloudinary
         if (imagenFile) {
-          finalizarConImagen(`uploads/productos/${imagenFile.filename}`);
+          finalizarConImagen(imagenFile.path);
         } else {
           finalizarConImagen(null);
         }
@@ -178,7 +180,8 @@ const actualizarProducto = (req, res) => {
         if (err) return res.status(500).json(err);
 
         if (imagenFile) {
-          const urlImagen = `uploads/productos/${imagenFile.filename}`;
+          // Antes: `uploads/productos/${imagenFile.filename}` — ahora es la URL de Cloudinary
+          const urlImagen = imagenFile.path;
 
           conexion.query(
             "UPDATE producto_imagenes SET activo = 0 WHERE producto_id = ?",

@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const path = require("path");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("../config/cloudinary.config");
 const {
   obtenerProductos,
   obtenerProductoPorId,
@@ -15,11 +16,17 @@ const {
   obtenerStockBajo
 } = require("../controllers/productos.controller");
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, path.join(__dirname, "../uploads/productos")),
-  filename: (req, file, cb) => {
-    const nombre = file.originalname.replace(/\s+/g, "_").toLowerCase();
-    cb(null, Date.now() + "_" + nombre);
+// Antes: multer.diskStorage guardaba el archivo en el disco local del servidor
+// (backend/uploads/productos/) — eso se perdía cada vez que Render reiniciaba
+// el servicio, porque el disco ahi es temporal.
+//
+// Ahora: CloudinaryStorage sube la imagen directo a Cloudinary, y el archivo
+// nunca toca el disco del servidor — queda guardado de forma permanente.
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "distribuidora-sm/productos",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
   },
 });
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } });
