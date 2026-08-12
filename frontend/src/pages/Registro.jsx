@@ -24,7 +24,10 @@ function Registro() {
   const navigate = useNavigate();
 
   // Paso: 1=política, 2=correo+token, 3=formulario, 4=éxito
-  const [paso, setPaso] = useState(1);
+  // TEMPORAL: puesto en 3 para saltar la verificación de correo (mientras se arregla el envío de emails con Brevo).
+  // RECORDATORIO PENDIENTE: volver a poner useState(1) antes de la defensa / uso real,
+  // y terminar de migrar services/email.service.js de Gmail a Brevo (BREVO_API_KEY, BREVO_SENDER_EMAIL).
+  const [paso, setPaso] = useState(3);
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
   const [tokenEnviado, setTokenEnviado] = useState(false);
@@ -40,18 +43,16 @@ function Registro() {
   const [telefono, setTelefono]   = useState("");
   const [direccion, setDireccion] = useState("");
   const [usuario, setUsuario]     = useState("");
-  const [usuarioEstado, setUsuarioEstado] = useState(null); // null | 'disponible' | 'no disponible' | 'verificando'
+  const [usuarioEstado, setUsuarioEstado] = useState(null);
   const [password, setPassword]   = useState("");
   const [confirmar, setConfirmar] = useState("");
   const [verPwd, setVerPwd]       = useState(false);
   const [verConf, setVerConf]     = useState(false);
 
-  // Consulta TSE (nueva funcionalidad)
   const [consultandoTSE, setConsultandoTSE] = useState(false);
   const [mensajeTSE, setMensajeTSE] = useState("");
-  const [tipoMensajeTSE, setTipoMensajeTSE] = useState(""); // "exito" | "advertencia" | "error"
+  const [tipoMensajeTSE, setTipoMensajeTSE] = useState("");
 
-  // Preguntas
   const [preguntas, setPreguntas] = useState([]);
   const [seleccion, setSeleccion] = useState([
     { pregunta_id: "", respuesta: "" },
@@ -66,7 +67,6 @@ function Registro() {
   const usuarioTimerRef = useRef(null);
   const cedulaTimerRef = useRef(null);
 
-  // Checks de contraseña en tiempo real
   const pwd = password;
   const checks = {
     longitud:  pwd.length >= 8,
@@ -76,7 +76,6 @@ function Registro() {
     simbolo:   /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd),
   };
 
-  // Cargar preguntas al montar
   useEffect(() => {
     fetch(`${API}/preguntas`)
       .then(r => r.json())
@@ -84,7 +83,6 @@ function Registro() {
       .catch(() => {});
   }, []);
 
-  // Countdown reenvío
   useEffect(() => {
     if (segundosRestantes > 0) {
       timerRef.current = setTimeout(() => setSegundosRestantes(s => s - 1), 1000);
@@ -94,7 +92,6 @@ function Registro() {
     return () => clearTimeout(timerRef.current);
   }, [segundosRestantes, tokenEnviado]);
 
-  // Verificar usuario con debounce
   useEffect(() => {
     if (!usuario) { setUsuarioEstado(null); return; }
     if (!REGEX_USUARIO.test(usuario)) { setUsuarioEstado("invalido"); return; }
@@ -110,10 +107,8 @@ function Registro() {
     return () => clearTimeout(usuarioTimerRef.current);
   }, [usuario]);
 
-  // ── PASO 1: aceptar política ──────────────────────────────────────────────
   const handleAceptarPolitica = () => setPaso(2);
 
-  // ── PASO 2: enviar token ──────────────────────────────────────────────────
   const handleEnviarToken = async () => {
     setError("");
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -138,7 +133,6 @@ function Registro() {
     setCargando(false);
   };
 
-  // ── PASO 2: verificar token ───────────────────────────────────────────────
   const handleVerificarToken = async () => {
     setTokenError("");
     if (!token.trim()) { setTokenError("Ingresa el TOKEN"); return; }
@@ -161,7 +155,6 @@ function Registro() {
     setCargando(false);
   };
 
-  // ── PASO 3: consultar cedula en el TSE (nueva funcionalidad) ─────────────
   const consultarCedulaTSE = async () => {
     const cedulaLimpia = cedula.trim();
 
@@ -194,8 +187,6 @@ function Registro() {
     setConsultandoTSE(false);
   };
 
-  // Auto-consulta: en cuanto la cédula tiene 9 dígitos (formato real de Costa Rica),
-  // se busca sola en el padrón, sin que la persona tenga que tocar ningún botón.
   useEffect(() => {
     clearTimeout(cedulaTimerRef.current);
     if (cedula.trim().length !== 9) return;
@@ -206,7 +197,6 @@ function Registro() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cedula]);
 
-  // ── PASO 3: enviar formulario ─────────────────────────────────────────────
   const handleRegistro = async () => {
     setError("");
     if (!nombre.trim() || !apellidos.trim()) { setError("Nombre y apellidos son requeridos"); return; }
@@ -217,7 +207,6 @@ function Registro() {
     if (!REGEX_PASSWORD.test(password)) { setError("La contraseña no cumple todos los requisitos"); return; }
     if (password !== confirmar) { setError("Las contraseñas no coinciden"); return; }
 
-    // Validar preguntas
     const ids = seleccion.map(s => s.pregunta_id);
     if (ids.some(id => !id)) { setError("Selecciona las 3 preguntas de seguridad"); return; }
     if (new Set(ids).size !== 3) { setError("No puedes repetir preguntas de seguridad"); return; }
@@ -253,15 +242,10 @@ function Registro() {
     setSeleccion(nueva);
   };
 
-  // ════════════════════════════════════════════════════════
-  // RENDER
-  // ════════════════════════════════════════════════════════
-
   return (
     <div className="auth-page">
       <div className="auth-card" style={{ maxWidth: "520px" }}>
 
-        {/* PASO 1 — Política de privacidad */}
         {paso === 1 && (
           <>
             <div className="auth-logo"><i className="bi bi-shield-check-fill"></i></div>
@@ -281,7 +265,6 @@ function Registro() {
           </>
         )}
 
-        {/* PASO 2 — Correo y TOKEN */}
         {paso === 2 && (
           <>
             <div className="auth-logo"><i className="bi bi-envelope-check-fill"></i></div>
@@ -323,7 +306,6 @@ function Registro() {
                   maxLength={6}
                   style={{ letterSpacing: "0.3em", fontSize: "1.3rem" }}
                 />
-                
               </div>
             )}
 
@@ -356,14 +338,12 @@ function Registro() {
           </>
         )}
 
-        {/* PASO 3 — Formulario completo */}
         {paso === 3 && (
           <>
             <div className="auth-logo"><i className="bi bi-person-plus-fill"></i></div>
             <h2 className="auth-titulo">Crear cuenta</h2>
             <p className="auth-sub">Correo verificado: <strong>{email}</strong></p>
 
-            {/* Datos personales */}
             <div className="registro-seccion-titulo">Datos personales</div>
 
             <div className="mb-2">
@@ -433,7 +413,6 @@ function Registro() {
               </div>
             </div>
 
-            {/* Acceso */}
             <div className="registro-seccion-titulo mt-3">Acceso</div>
 
             <div className="mb-2">
@@ -472,7 +451,6 @@ function Registro() {
               </div>
             </div>
 
-            {/* Checks en tiempo real */}
             <div className="pwd-checks mb-2">
               <CheckItem ok={checks.longitud}  texto="Mínimo 8 caracteres" />
               <CheckItem ok={checks.mayuscula} texto="Al menos una mayúscula" />
@@ -499,7 +477,6 @@ function Registro() {
               )}
             </div>
 
-            {/* Preguntas de seguridad */}
             <div className="registro-seccion-titulo mt-3">Preguntas de seguridad</div>
             <p style={{ fontSize: "0.82rem", color: "#6c757d", marginBottom: "12px" }}>
               Selecciona 3 preguntas diferentes y escribe tu respuesta para cada una.
@@ -534,7 +511,6 @@ function Registro() {
           </>
         )}
 
-        {/* PASO 4 — Éxito */}
         {paso === 4 && (
           <div className="text-center">
             <div style={{ fontSize: "4rem", color: "#40916c", marginBottom: "1rem" }}>
