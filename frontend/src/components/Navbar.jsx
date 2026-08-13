@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 function Navbar() {
   const navigate = useNavigate();
   const [totalUnidades, setTotalUnidades] = useState(0);
+  const [modoAccesible, setModoAccesible] = useState(false);
 
   useEffect(() => {
     const actualizarContador = () => {
@@ -26,6 +27,20 @@ function Navbar() {
     };
   }, []);
 
+  // Accesibilidad: modo de texto grande + alto contraste, se recuerda entre visitas
+  useEffect(() => {
+    const guardado = localStorage.getItem("modoAccesible") === "true";
+    setModoAccesible(guardado);
+    document.documentElement.classList.toggle("modo-accesible", guardado);
+  }, []);
+
+  const alternarModoAccesible = () => {
+    const nuevoValor = !modoAccesible;
+    setModoAccesible(nuevoValor);
+    document.documentElement.classList.toggle("modo-accesible", nuevoValor);
+    localStorage.setItem("modoAccesible", nuevoValor);
+  };
+
   return (
     <nav className="navbar navbar-dark bg-success py-3">
       <div className="container">
@@ -37,6 +52,18 @@ function Navbar() {
         </Link>
         <ul className="navbar-nav ms-auto d-flex flex-row gap-3 align-items-center">
           <li className="nav-item">
+            <button
+              className="btn-accesibilidad"
+              onClick={alternarModoAccesible}
+              aria-label={modoAccesible ? "Desactivar modo de texto grande y alto contraste" : "Activar modo de texto grande y alto contraste"}
+              aria-pressed={modoAccesible}
+              title="Texto grande y alto contraste"
+            >
+              <i className="bi bi-universal-access-circle"></i>
+              <span className="d-none d-md-inline ms-1">Accesibilidad</span>
+            </button>
+          </li>
+          <li className="nav-item">
             <Link className="nav-link text-white" to="/#destacados">
               <i className="bi bi-star-fill me-1"></i>
               Destacados
@@ -47,6 +74,7 @@ function Navbar() {
               className="nav-link text-white border-0 bg-transparent position-relative"
               onClick={() => navigate("/pedido")}
               style={{ cursor: "pointer" }}
+              aria-label={`Ver carrito, ${totalUnidades} unidades`}
             >
               <i className="bi bi-cart-fill"></i>
               {totalUnidades > 0 && (

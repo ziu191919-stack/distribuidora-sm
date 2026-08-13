@@ -45,6 +45,53 @@ button:focus-visible {
   outline-offset: 3px;
 }
 
+/* ============================================================
+   ACCESIBILIDAD — BOTÓN DE TEXTO GRANDE / ALTO CONTRASTE
+   ============================================================ */
+.btn-accesibilidad {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.4);
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 100px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-accesibilidad:hover,
+.btn-accesibilidad[aria-pressed="true"] {
+  background: #ffffff;
+  color: #1a3a2a;
+  border-color: #ffffff;
+}
+.btn-accesibilidad i {
+  font-size: 1.1rem;
+}
+
+/* Modo accesible: aplicado en <html>, agranda todo el texto de la app
+   (que usa rem) y aumenta el contraste de textos secundarios */
+html.modo-accesible {
+  font-size: 125%;
+}
+html.modo-accesible .text-muted,
+html.modo-accesible .catalogo-sub,
+html.modo-accesible .catalogo-card-desc,
+html.modo-accesible .admin-page-sub {
+  color: #333333 !important;
+}
+html.modo-accesible .hero-subtitulo {
+  color: rgba(255,255,255,0.92) !important;
+}
+html.modo-accesible button,
+html.modo-accesible .form-control,
+html.modo-accesible .form-select {
+  font-size: 1.05rem !important;
+}
+
 /* Respeta la preferencia del usuario de reducir movimiento */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
