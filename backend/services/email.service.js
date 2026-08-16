@@ -1,23 +1,12 @@
-const nodemailer = require("nodemailer");
+const axios = require("axios");
 
-// Configuración explícita (host/puerto) en vez del atajo "service: gmail" —
-// más confiable en servidores en la nube, con timeouts definidos para no
-// dejar la petición "colgada" indefinidamente si Gmail tarda en responder.
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // true para puerto 465 (SSL directo, más estable que STARTTLS en 587)
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS,
-  },
-  connectionTimeout: 15000, // 15s máximo para conectar
-  greetingTimeout: 15000,
-  socketTimeout: 20000,
-});
+// Brevo usa una API HTTPS (no SMTP), mucho mas confiable desde servidores
+// en la nube como Render — evita los bloqueos/filtros de spam que tenia
+// el envio directo por Gmail hacia otros proveedores como Hotmail.
+const BREVO_URL = "https://api.brevo.com/v3/smtp/email";
 
 const enviarEmail = async ({ to, subject, html }) => {
-  if (!process.env.GMAIL_USER || !process.env.GMAIL_PASS) {
+  if (!process.env.BREVO_API_KEY) {
     console.log("========================================");
     console.log("EMAIL (modo local sin credenciales)");
     console.log(`Para: ${to}`);
@@ -28,17 +17,30 @@ const enviarEmail = async ({ to, subject, html }) => {
   }
   try {
     const inicio = Date.now();
-    await transporter.sendMail({
-      from: `"Distribuidora S.M" <${process.env.GMAIL_USER}>`,
-      to,
-      subject,
-      html,
-    });
-    console.log(`Email enviado a ${to} en ${Date.now() - inicio}ms`);
+    await axios.post(
+      BREVO_URL,
+      {
+        sender: {
+          name: "Distribuidora S.M",
+          email: process.env.BREVO_SENDER_EMAIL,
+        },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+      },
+      {
+        headers: {
+          "api-key": process.env.BREVO_API_KEY,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      }
+    );
+    console.log(`Email enviado a ${to} en ${Date.now() - inicio}ms (Brevo)`);
     return { ok: true };
   } catch (error) {
-    console.error("Error enviando email:", error.message);
-    return { ok: false, error: error.message };
+    console.error("Error enviando email (Brevo):", error.response?.data || error.message);
+    return { ok: false, error: error.response?.data || error.message };
   }
 };
 
