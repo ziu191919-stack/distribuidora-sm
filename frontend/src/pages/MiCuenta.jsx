@@ -38,9 +38,10 @@ function MiCuenta() {
   const cerrarSesion = () => {
     localStorage.removeItem("token_cliente");
     localStorage.removeItem("cliente");
+    localStorage.removeItem("carrito");
+    window.dispatchEvent(new Event("carritoActualizado"));
     navigate("/login");
   };
-
   const generarQR = async () => {
     setTotpError("");
     setTotpCargando(true);
