@@ -27,7 +27,7 @@ function Registro() {
   // TEMPORAL: puesto en 3 para saltar la verificación de correo (mientras se arregla el envío de emails con Brevo).
   // RECORDATORIO PENDIENTE: volver a poner useState(1) antes de la defensa / uso real,
   // y terminar de migrar services/email.service.js de Gmail a Brevo (BREVO_API_KEY, BREVO_SENDER_EMAIL).
-  const [paso, setPaso] = useState(3);
+  const [paso, setPaso] = useState(1);
   const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
   const [tokenEnviado, setTokenEnviado] = useState(false);
