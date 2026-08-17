@@ -21,7 +21,9 @@ import Resumen from "./pages/admin/Resumen";
 import Facturas from "./pages/admin/Facturas";
 import DemoTSE from "./pages/DemoTSE";
 
-// Verifica token cliente: que exista y no esté expirado
+import Onboarding from "./components/Onboarding";
+import EstadoConexion from "./components/EstadoConexion";
+
 function tokenClienteValido() {
   const token = localStorage.getItem("token_cliente");
   if (!token) return false;
@@ -40,7 +42,6 @@ function tokenClienteValido() {
   }
 }
 
-// Verifica token admin
 function tokenAdminValido() {
   const token = localStorage.getItem("token_admin");
   if (!token) return false;
@@ -68,15 +69,16 @@ function RutaAdmin({ children }) {
 function App() {
   return (
     <BrowserRouter>
+      <EstadoConexion />
+      <Onboarding />
+
       <Routes>
-        {/* Públicas cliente */}
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/olvide-password" element={<OlvidePassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/recuperar-usuario" element={<RecuperarUsuario />} />
 
-        {/* Protegidas cliente */}
         <Route path="/" element={<RutaCliente><Home /></RutaCliente>} />
         <Route path="/catalogo" element={<RutaCliente><Catalogo /></RutaCliente>} />
         <Route path="/contacto" element={<RutaCliente><Contacto /></RutaCliente>} />
@@ -84,7 +86,6 @@ function App() {
         <Route path="/producto/:id" element={<RutaCliente><DetalleProducto /></RutaCliente>} />
         <Route path="/mi-cuenta" element={<RutaCliente><MiCuenta /></RutaCliente>} />
 
-        {/* Admin */}
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<RutaAdmin><AdminDashboard /></RutaAdmin>} />
         <Route path="/inventario" element={<RutaAdmin><Inventario /></RutaAdmin>} />
@@ -93,7 +94,7 @@ function App() {
         <Route path="/admin/resumen" element={<RutaAdmin><Resumen /></RutaAdmin>} />
         <Route path="/admin/facturas" element={<RutaAdmin><Facturas /></RutaAdmin>} />
         <Route path="/demo-tse" element={<DemoTSE />} />
-        
+
       </Routes>
     </BrowserRouter>
   );
